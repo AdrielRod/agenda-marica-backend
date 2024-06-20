@@ -1,0 +1,101 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+  name String 
+  email String
+  image String
+  neighborhood String
+  zipCode String
+  hasAcess Boolean
+  cpf String
+  situationSchedule String
+  phone String
+  password String
+  createAt DateTime? @default(now())
+  
+  schedules Schedule[]
+
+  @@map("users")
+  requests_access RequestAccess?
+}
+
+model RequestAccess {
+  id String @id @default(uuid())
+  image String
+  situation String
+  observation String
+  idUser String
+
+  @@map("requests_access")
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Vehicle {
+  id String @id @default(uuid())
+  neighborhood String
+
+  schedules Schedule[]
+
+  @@map("vehicles")
+  days Day[]
+  
+}
+
+model Day {
+  id String @id @default(uuid())
+  date String
+  vehicleId String
+  
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  hours Hour[]
+
+  @@map("days")
+}
+
+
+model Hour {
+  id String @id @default(uuid())
+  hour String
+  vacancy Int
+  quantityPeoplesScheduled Int
+
+  dayId String
+  day Day @relation(fields: [dayId], references: [id])
+  schedules Schedule[]
+
+  @@map("hours")
+}
+
+model Schedule {
+  id String @id @default(uuid())
+  status String
+  typeService String
+  date String
+  hourDate String
+
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  vehicleId String
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+
+  hourId String
+  hour Hour @relation(fields: [hourId], references: [id])
+
+  @@map("schedules")
+}
